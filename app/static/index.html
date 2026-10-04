@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reel Clipper</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">◉ REEL&nbsp;CLIPPER</div>
+      <div class="tagline">raw footage &rarr; aesthetic 9:16 edit</div>
+    </header>
+
+    <main>
+      <section class="panel controls">
+        <div id="dropzone" class="dropzone">
+          <input id="clipInput" type="file" accept="video/*" multiple hidden />
+          <div class="dz-inner">
+            <div class="dz-icon">🎬</div>
+            <div class="dz-title">Drop raw clips here</div>
+            <div class="dz-sub">or click to browse &middot; mp4, mov, hevc</div>
+          </div>
+          <ul id="clipList" class="clip-list"></ul>
+        </div>
+
+        <label class="field music-field">
+          <span class="lbl">Music track <em>(cuts sync to the beat)</em></span>
+          <input id="musicInput" type="file" accept="audio/*,video/*" />
+        </label>
+
+        <div id="musicPanel" class="music-panel hidden">
+          <div class="wave-wrap">
+            <canvas id="wave"></canvas>
+            <span id="startLabel" class="start-label"></span>
+          </div>
+          <div id="chips" class="chips"></div>
+          <p id="musicHint" class="music-hint"></p>
+        </div>
+
+        <label class="field music-field">
+          <span class="lbl">Style reference <em>(optional — steal the style of a reel you love)</em></span>
+          <input id="refInput" type="file" accept="video/*" />
+          <p id="refHint" class="music-hint hidden"></p>
+          <div id="saveRow" class="save-row hidden">
+            <input id="packName" type="text" maxlength="40" placeholder="name this style…" />
+            <button id="savePack" type="button">Save pack</button>
+          </div>
+        </label>
+
+        <div class="grid">
+          <label class="field">
+            <span class="lbl">Style pack <button id="delPack" type="button" class="del-pack hidden" title="Delete this saved pack">delete</button></span>
+            <select id="pack"></select>
+          </label>
+          <label class="field">
+            <span class="lbl">Color grade</span>
+            <select id="preset"></select>
+          </label>
+          <label class="field">
+            <span class="lbl">Framing</span>
+            <select id="fill">
+              <option value="blur">Blurred fill</option>
+              <option value="crop">Full-bleed crop</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="lbl">Aspect</span>
+            <select id="aspect">
+              <option value="9:16">9:16 (vertical)</option>
+              <option value="1:1">1:1 (square)</option>
+              <option value="16:9">16:9 (landscape)</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="lbl">Frame rate</span>
+            <select id="fps">
+              <option value="30">30 fps</option>
+              <option value="60">60 fps</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="lbl">Location tag</span>
+            <input id="location" type="text" value="TOKYO" maxlength="18" />
+          </label>
+          <label class="field">
+            <span class="lbl">Caption <em>(burned in)</em></span>
+            <input id="caption" type="text" maxlength="160" placeholder="e.g. the whole crew showed up" />
+          </label>
+          <label class="field">
+            <span class="lbl">Day #</span>
+            <input id="day" type="number" value="1" min="0" max="99" />
+          </label>
+          <label class="field">
+            <span class="lbl">Duck <em>(original sound) — threshold · ratio</em></span>
+            <span class="duck-row">
+              <input id="duckThreshold" type="number" step="0.01" min="0" max="1" value="0.05" />
+              <input id="duckRatio" type="number" step="1" min="1" max="30" value="8" />
+            </span>
+          </label>
+          <label class="field">
+            <span class="lbl">Length <span id="durVal">18s</span></span>
+            <input id="duration" type="range" min="6" max="40" value="18" />
+          </label>
+          <label class="field">
+            <span class="lbl">Cut speed</span>
+            <select id="cpb">
+              <option value="0.5">Chill (½ beat)</option>
+              <option value="1" selected>On beat</option>
+              <option value="2">Fast (2× beat)</option>
+            </select>
+          </label>
+          <label class="field drama-field">
+            <span class="lbl">Effects drama <span id="dramaVal">Balanced</span></span>
+            <input id="drama" type="range" min="20" max="150" value="72" />
+            <span class="drama-scale"><em>subtle</em><em>balanced</em><em>max</em></span>
+          </label>
+        </div>
+
+        <div class="toggles">
+          <label><input id="overlay" type="checkbox" checked /> Camcorder UI</label>
+          <label><input id="srcAudio" type="checkbox" /> Original sound (ducked)</label>
+          <label><input id="autoCaptions" type="checkbox" /> Auto captions (speech-to-text)</label>
+          <label>Quality
+            <select id="quality">
+              <option value="final">Final</option>
+              <option value="preview">Preview</option>
+              <option value="draft">Draft (cuts only)</option>
+            </select>
+          </label>
+          <label><input id="zoom" type="checkbox" checked /> Zoom/whip</label>
+          <label><input id="ramps" type="checkbox" checked /> Speed ramps</label>
+          <label><input id="flash" type="checkbox" checked /> Flash</label>
+          <label><input id="glitch" type="checkbox" checked /> Glitch</label>
+          <label><input id="grain" type="checkbox" /> Film grain</label>
+          <label><input id="jitter" type="checkbox" /> VHS jitter</label>
+          <label><input id="leak" type="checkbox" /> Light leak</label>
+          <label><input id="hwaccel" type="checkbox" /> Fast encode (VideoToolbox)</label>
+          <label><input id="sb" type="checkbox" checked /> Review picks first</label>
+        </div>
+
+        <button id="generate" class="generate">Generate Reel</button>
+
+        <div id="progress" class="progress hidden">
+          <div class="bar"><div id="barFill" class="bar-fill"></div></div>
+          <div id="stageLabel" class="stage">starting…</div>
+          <button id="cancelBtn" type="button" class="cancel hidden">Cancel</button>
+        </div>
+        <div id="error" class="error hidden"></div>
+      </section>
+
+      <section class="panel jobs-panel">
+        <div class="jobs-head">
+          <span class="jobs-title">Jobs</span>
+          <button id="jobsRefresh" type="button" class="sb-render">Refresh</button>
+        </div>
+        <ul id="jobsList" class="jobs-list"></ul>
+        <p class="sb-hint">up to 2 renders run at once — the rest queue. Finished jobs are kept, then the oldest are cleaned up automatically.</p>
+      </section>
+
+      <section class="panel preview">
+        <div class="phone">
+          <video id="player" controls playsinline></video>
+          <div id="previewHint" class="preview-hint">your reel previews here</div>
+        </div>
+        <div id="storyboard" class="storyboard hidden">
+          <div class="sb-head">
+            <span id="sbTitle">Storyboard</span>
+            <button id="sbUndo" type="button" class="sb-btn" title="undo last edit">Undo</button>
+            <button id="sbRedo" type="button" class="sb-btn" title="redo">Redo</button>
+            <a id="sbPlan" class="sb-btn" download title="download the edit plan JSON">Plan</a>
+            <button id="sbRender" class="sb-render">Render reel</button>
+          </div>
+          <div id="filmstrip" class="filmstrip"></div>
+          <div id="sbCapRow" class="sb-cap hidden">
+            <input id="sbCapInput" type="text" maxlength="160" placeholder="caption for the selected slot" />
+            <button id="sbCapSet" type="button" class="sb-render">Set</button>
+            <button id="sbCapClear" type="button" class="sb-btn">Clear</button>
+          </div>
+          <p class="sb-benchlbl">Bench — best unused shots. Click a slot above, then a bench shot to swap it in.</p>
+          <div id="bench" class="bench"></div>
+          <p id="sbHint" class="sb-hint"></p>
+        </div>
+        <a id="download" class="download hidden" download>⬇ Download .mp4</a>
+        <button id="share" type="button" class="download hidden">↗ Share</button>
+      </section>
+    </main>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

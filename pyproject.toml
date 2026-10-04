@@ -1,0 +1,33 @@
+[project]
+name = "reel-clipper"
+version = "0.1.0"
+description = "Turn raw footage into aesthetic, beat-synced 9:16 Reels/TikToks with a cinematic grade + digicam overlay."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "python-multipart>=0.0.9",
+    "librosa>=0.10.2",
+    "numpy>=1.26,<2.1",
+    "opencv-python-headless>=4.9,<5",
+    "scenedetect>=0.6.4",
+    "pillow>=10.4",
+]
+
+[project.scripts]
+reel = "engine.render:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["engine", "app"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+captions = [
+    "faster-whisper>=1.0",
+]

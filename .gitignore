@@ -1,0 +1,24 @@
+.venv/
+__pycache__/
+*.pyc
+work/
+output/*.mp4
+input/*
+!input/.gitkeep
+# Reference reels are large binaries, kept on disk but not in git.
+# Integrity is tracked via reference/MANIFEST.sha256 (see REFERENCE.md).
+reference/*.mp4
+!reference/MANIFEST.sha256
+# uv.lock is committed for reproducible installs (uv sync --frozen, Docker)
+.reasonix/tasks/
+.reasonix/desktop-topic-*
+
+# Machine-local metadata and agent configuration
+.DS_Store
+.pytest_cache/
+.claude/
+.reasonix/
+reasonix.toml
+.env
+.env.*
+!.env.example

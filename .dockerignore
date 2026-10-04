@@ -1,0 +1,13 @@
+# Keep the Docker build context small — work/ can be tens of GB.
+.git
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+work
+output
+input
+.reasonix
+.claude
+reference/*.mp4
+!reference/MANIFEST.sha256
